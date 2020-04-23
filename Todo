@@ -2,4 +2,15 @@
 2. # make an object a character so I am able to animated
 3. # create a moving background in python using pygame.
 4. # Make the character move with a mouse and keyboard
-5 # make the main characters weapon shoot 
+5 # make the main characters weapon shoot
+Things I have completed
+1. having a moving character
+2. The main character is animated
+3. There is a background image
+4. The character can be controlled with a and d in a keyboard
+
+Things i have to work on
+1. Have a background that moves and the character goes off the screen
+2. add a jumping control
+3.make the character look the other way
+
