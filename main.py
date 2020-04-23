@@ -1,43 +1,67 @@
 import pygame
-import os
 
 pygame.init()
-Screen_weigh = 800
-Screen_high = 500
+Screen_weigh = 900
+Screen_high = 900
 screen = pygame.display.set_mode((Screen_weigh, Screen_high))
+imgs_right = [pygame.image.load("Run.png"), pygame.image.load("Run2.png"), pygame.image.load("Run3.png"),
+              pygame.image.load("Run4.png"), pygame.image.load("Run5.png"), pygame.image.load("Run6.png"),
+              pygame.image.load("Run7.png"), pygame.image.load("Run8.png")]
+imgs_left = [pygame.image.load("Runleft.png"), pygame.image.load("Runleft2.png"), pygame.image.load("Run2.png")]
+
 pygame.display.set_caption("Running")
-x = 50
-y = 400
-width = 40
-hight = 60
-velocity = 5
+x = 0
+y = 200
+velocity = 50
+l_run = False
+r_run = False
+w_count = 0
+back = pygame.image.load("back.jpg")
+char = pygame.image.load("Idle1.png")
+
+clock = pygame.time.Clock()
 
 
-def images():
-    os.path.abspath('D:/Final-project/png')
-    walkright = pygame.image.load('Run(1).png')
+def wind():
+    global w_count
+    screen.blit(back, (0, 0))
+    if w_count + 1 >= 9:
+        w_count = 0
+    if r_run:
+        screen.blit(imgs_right[w_count // 1], (x, y))
+        w_count += 1
+    elif l_run:
+        screen.blit(imgs_left[w_count // 1], (x, y))
+        w_count += 1
+    else:
+        screen.blit(char, (x, y))
+        w_count = 0
+
+    pygame.display.update()
 
 
-def movement():
-    global x
-    global y
-    key_pressed = pygame.key.get_pressed()
-    if key_pressed[pygame.K_d] and x < Screen_weigh - 40:
-        x = x + velocity
-    if key_pressed[pygame.K_a] and x > 0:
-        x = x - velocity
-    if key_pressed[pygame.K_w] and y > 0:
-        y = y - velocity
-    screen.fill((255, 0, 0))
-
-
-thing = True
-while thing:
-    pygame.time.delay(100)
+main = True
+while main:
+    pygame.time.delay(25)
     for i in pygame.event.get():
         if i.type == pygame.QUIT:
-            thing = False
-    movement()
-    pygame.draw.rect(screen, (0, 255, 0), (x, y, width, hight))
-    pygame.display.update()
+            main = False
+    clock.tick(9)
+    wind()
+
+    key_pressed = pygame.key.get_pressed()
+    if key_pressed[pygame.K_d]:
+        x = x + velocity
+        l_run = False
+        r_run = True
+    elif key_pressed[pygame.K_a] and x > -100:
+        x = x - velocity
+        l_run = False
+        r_run = True
+
+
+    else:
+        l_run = False
+        r_run = False
+
 pygame.quit()
