@@ -4,64 +4,129 @@ pygame.init()
 Screen_weigh = 900
 Screen_high = 900
 screen = pygame.display.set_mode((Screen_weigh, Screen_high))
-imgs_right = [pygame.image.load("Run.png"), pygame.image.load("Run2.png"), pygame.image.load("Run3.png"),
-              pygame.image.load("Run4.png"), pygame.image.load("Run5.png"), pygame.image.load("Run6.png"),
-              pygame.image.load("Run7.png"), pygame.image.load("Run8.png")]
-imgs_left = [pygame.image.load("Runleft.png"), pygame.image.load("Runleft2.png"), pygame.image.load("Run2.png")]
+imgs_right = [pygame.image.load("Run_000.png"), pygame.image.load("Run_001.png"), pygame.image.load("Run_002.png"),
+              pygame.image.load("Run_003.png"), pygame.image.load("Run_004.png"), pygame.image.load("Run_005.png"),
+              pygame.image.load("Run_006.png"), pygame.image.load("Run_007.png"), pygame.image.load("Run_009.png"),
+              pygame.image.load("Run_010.png"), pygame.image.load("Run_011.png")]
+
+back = pygame.image.load("back.jpg")
 
 pygame.display.set_caption("Running")
+w_count = 0
+x_back = 200
 x = 0
 y = 200
 velocity = 50
-l_run = False
-r_run = False
-w_count = 0
-back = pygame.image.load("back.jpg")
-char = pygame.image.load("Idle1.png")
+imgs_left = imgs_right.copy()
+
+
+class main_character():
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.velocity = 50
+        self.jumping = False
+        self.l_run = False
+        self.r_run = False
+        self.j_count = 15
+        self.w_count = 0
+
+
+    def draw(self, screen):
+        if self.w_count + 1 >= 11:
+            self.w_count = 0
+        elif self.r_run:
+            screen.blit(imgs_right[self.w_count // 1], (self.x, self.y))
+            self.w_count += 1
+        elif self.l_run:
+            screen.blit(imgs_right[self.w_count // 1], (self.x, self.y))
+            self.w_count += 1
+        else:
+            screen.blit(char, (self.x, self.y))
+    def change_direction(self):
+        if self.x <= 0:
+            self.direction = 1
+        if self.x + self.width >= Screen_weigh:
+            self.direction = -1
+
+
+ene_right = pygame.image.load("enemy.png")
+
+
+char = pygame.image.load("idle_000.png")
 
 clock = pygame.time.Clock()
 
 
 def wind():
-    global w_count
     screen.blit(back, (0, 0))
-    if w_count + 1 >= 9:
-        w_count = 0
-    if r_run:
-        screen.blit(imgs_right[w_count // 1], (x, y))
-        w_count += 1
-    elif l_run:
-        screen.blit(imgs_left[w_count // 1], (x, y))
-        w_count += 1
-    else:
-        screen.blit(char, (x, y))
-        w_count = 0
+    mainc.draw(screen)
 
     pygame.display.update()
 
 
+def background():
+    global x_back, Screen_weigh
+    green = 0, 255, 0
+    x2 = 900
+    pygame.draw.rect(screen, green, [0, 400, x2, 400])
+    while mainc.x > 900:
+        x2 += 10
+
+
+class Platform(pygame.sprite.Sprite):
+    def __init__(self, x, y, w, h):
+        green = 0, 255, 0
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((w, h))
+        self.image.fill(green)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
+def enemy(x, y):
+    global w_count
+    screen.blit(back, (0, 0))
+    if w_count + 1 >= 11:
+        w_count = 0
+        screen.blit(imgs_right[w_count // 1], (x, y))
+        w_count += 1
+
+
+mainc = main_character(100, 450, 400, 385)
 main = True
 while main:
+    clock.tick(11)
     pygame.time.delay(25)
     for i in pygame.event.get():
         if i.type == pygame.QUIT:
             main = False
-    clock.tick(9)
+    Platform(200, 250, 100, 40)
     wind()
+    background()
 
     key_pressed = pygame.key.get_pressed()
     if key_pressed[pygame.K_d]:
-        x = x + velocity
-        l_run = False
-        r_run = True
-    elif key_pressed[pygame.K_a] and x > -100:
-        x = x - velocity
-        l_run = False
-        r_run = True
+        mainc.x = mainc.x + mainc.velocity
+        mainc.l_run = False
+        mainc.r_run = True
 
+    if key_pressed[pygame.K_a]:
+        mainc.x = mainc.x - mainc.velocity
+        mainc.l_run = True
+        mainc.r_run = False
 
-    else:
-        l_run = False
-        r_run = False
+    if key_pressed[pygame.K_SPACE]:
+        mainc.jumping = 300
+
+    if mainc.jumping > 1:
+        mainc.y -= mainc.velocity
+        mainc.jumping -= mainc.velocity
+    elif mainc.y < Screen_high - 500:
+        mainc.y += 50
+
 
 pygame.quit()
