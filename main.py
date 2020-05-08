@@ -1,7 +1,7 @@
 import pygame
 
 pygame.init()
-Screen_weigh = 900
+Screen_weigh = 1000
 Screen_high = 900
 screen = pygame.display.set_mode((Screen_weigh, Screen_high))
 imgs_right = [pygame.image.load("Run_000.png"), pygame.image.load("Run_001.png"), pygame.image.load("Run_002.png"),
@@ -9,7 +9,6 @@ imgs_right = [pygame.image.load("Run_000.png"), pygame.image.load("Run_001.png")
               pygame.image.load("Run_006.png"), pygame.image.load("Run_007.png"), pygame.image.load("Run_009.png"),
               pygame.image.load("Run_010.png"), pygame.image.load("Run_011.png")]
 
-back = pygame.image.load("back.jpg")
 
 pygame.display.set_caption("Running")
 w_count = 0
@@ -17,8 +16,6 @@ x_back = 200
 x = 0
 y = 200
 velocity = 50
-imgs_left = imgs_right.copy()
-
 
 class main_character():
     def __init__(self, x, y, width, height):
@@ -32,6 +29,7 @@ class main_character():
         self.r_run = False
         self.j_count = 15
         self.w_count = 0
+        self.direction = 1
 
 
     def draw(self, screen):
@@ -45,11 +43,7 @@ class main_character():
             self.w_count += 1
         else:
             screen.blit(char, (self.x, self.y))
-    def change_direction(self):
-        if self.x <= 0:
-            self.direction = 1
-        if self.x + self.width >= Screen_weigh:
-            self.direction = -1
+
 
 
 ene_right = pygame.image.load("enemy.png")
@@ -61,19 +55,25 @@ clock = pygame.time.Clock()
 
 
 def wind():
-    screen.blit(back, (0, 0))
+    global x
+    back = pygame.image.load("back1.png").convert()
+    screen.blit(back, (x, -285))
+    x = x -1
     mainc.draw(screen)
 
     pygame.display.update()
-
+def block():
+    green = 0, 255, 0
+    pygame.draw.rect(screen, green, [300, 300, 200, 250])
 
 def background():
     global x_back, Screen_weigh
     green = 0, 255, 0
     x2 = 900
     pygame.draw.rect(screen, green, [0, 400, x2, 400])
-    while mainc.x > 900:
-        x2 += 10
+    while mainc.x > Screen_weigh/4:
+        Screen_weigh += 10
+        mainc.x = mainc.x - abs(mainc.velocity)
 
 
 class Platform(pygame.sprite.Sprite):
@@ -87,16 +87,17 @@ class Platform(pygame.sprite.Sprite):
         self.rect.y = y
 
 
+
 def enemy(x, y):
     global w_count
-    screen.blit(back, (0, 0))
+
     if w_count + 1 >= 11:
         w_count = 0
         screen.blit(imgs_right[w_count // 1], (x, y))
         w_count += 1
 
 
-mainc = main_character(100, 450, 400, 385)
+mainc = main_character(100, 200, 400, 385)
 main = True
 while main:
     clock.tick(11)
@@ -107,7 +108,6 @@ while main:
     Platform(200, 250, 100, 40)
     wind()
     background()
-
     key_pressed = pygame.key.get_pressed()
     if key_pressed[pygame.K_d]:
         mainc.x = mainc.x + mainc.velocity
@@ -127,6 +127,5 @@ while main:
         mainc.jumping -= mainc.velocity
     elif mainc.y < Screen_high - 500:
         mainc.y += 50
-
-
+    block()
 pygame.quit()
