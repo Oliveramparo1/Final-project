@@ -8,14 +8,19 @@ imgs_right = [pygame.image.load("Run_000.png"), pygame.image.load("Run_001.png")
               pygame.image.load("Run_003.png"), pygame.image.load("Run_004.png"), pygame.image.load("Run_005.png"),
               pygame.image.load("Run_006.png"), pygame.image.load("Run_007.png"), pygame.image.load("Run_009.png"),
               pygame.image.load("Run_010.png"), pygame.image.load("Run_011.png")]
-
-
+ene_right = pygame.image.load("enemy.png")
 pygame.display.set_caption("Running")
 w_count = 0
 x_back = 200
 x = 0
 y = 200
 velocity = 50
+enex = 600
+eney = 300
+ene_velocity = 30
+enex += 10
+screen.blit(ene_right, (400, 400))
+
 
 class main_character():
     def __init__(self, x, y, width, height):
@@ -27,13 +32,11 @@ class main_character():
         self.jumping = False
         self.l_run = False
         self.r_run = False
-        self.j_count = 15
         self.w_count = 0
         self.direction = 1
 
-
     def draw(self, screen):
-        if self.w_count + 1 >= 11:
+        if self.w_count + 1 > 11:
             self.w_count = 0
         elif self.r_run:
             screen.blit(imgs_right[self.w_count // 1], (self.x, self.y))
@@ -45,67 +48,71 @@ class main_character():
             screen.blit(char, (self.x, self.y))
 
 
-
-ene_right = pygame.image.load("enemy.png")
-
-
 char = pygame.image.load("idle_000.png")
 
 clock = pygame.time.Clock()
 
 
 def wind():
-    global x
-    back = pygame.image.load("back1.png").convert()
-    screen.blit(back, (x, -285))
-    x = x -1
+    global x, y
+    back = pygame.image.load("back3.png").convert()
+    x_val2 = x % back.get_rect().width
+
+    screen.blit(back, (x_val2 - back.get_rect().width, 700))
+    x = x - 5
+    if x_val2 < Screen_weigh:
+        screen.blit(back, (x_val2, 700))
     mainc.draw(screen)
 
     pygame.display.update()
+
+
 def block():
     green = 0, 255, 0
     pygame.draw.rect(screen, green, [300, 300, 200, 250])
+
 
 def background():
     global x_back, Screen_weigh
     green = 0, 255, 0
     x2 = 900
-    pygame.draw.rect(screen, green, [0, 400, x2, 400])
-    while mainc.x > Screen_weigh/4:
+    pygame.draw.rect(screen, green, [0, 300, x2, 400])
+    while mainc.x > Screen_weigh / 4:
         Screen_weigh += 10
-        mainc.x = mainc.x - abs(mainc.velocity)
+        mainc.x = mainc.x - mainc.velocity
 
-
-class Platform(pygame.sprite.Sprite):
-    def __init__(self, x, y, w, h):
-        green = 0, 255, 0
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((w, h))
-        self.image.fill(green)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
-
-
-def enemy(x, y):
-    global w_count
-
-    if w_count + 1 >= 11:
-        w_count = 0
-        screen.blit(imgs_right[w_count // 1], (x, y))
-        w_count += 1
 
 
 mainc = main_character(100, 200, 400, 385)
+
 main = True
 while main:
-    clock.tick(11)
+    screen.fill((135, 206, 235))
+
+    clock.tick(20)
     pygame.time.delay(25)
     for i in pygame.event.get():
         if i.type == pygame.QUIT:
             main = False
-    Platform(200, 250, 100, 40)
+
+    x_val = mainc.x
+    y_val = mainc.y
+    pla_col = pygame.Rect(x_val, y_val, 400, 385)
+    plat = pygame.Rect(200, 200, 100, 50)
+    pl = pygame.Rect(400, 200, 200, 50)
+    if pla_col.colliderect(plat):
+
+        pygame.draw.rect(screen, (255, 0, 0), plat)
+    else:
+        pygame.draw.rect(screen, (255, 0, 0), plat)
+
+    if pla_col.colliderect(pl):
+
+        pygame.draw.rect(screen, (255, 0, 0), pl)
+
+    else:
+        pygame.draw.rect(screen, (255, 0, 0), pl)
+
     wind()
     background()
     key_pressed = pygame.key.get_pressed()
@@ -126,6 +133,13 @@ while main:
         mainc.y -= mainc.velocity
         mainc.jumping -= mainc.velocity
     elif mainc.y < Screen_high - 500:
-        mainc.y += 50
-    block()
+        if pla_col.colliderect(plat):
+
+            pygame.draw.rect(screen, (0, 255, 0), plat)
+
+        else:
+            pygame.draw.rect(screen, (0, 255, 0), plat)
+            mainc.y += 50
+
+
 pygame.quit()
